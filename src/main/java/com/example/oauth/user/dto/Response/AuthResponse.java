@@ -1,4 +1,4 @@
-package com.example.ssologin.user.dto.Response;
+package com.example.oauth.user.dto.Response;
 
 
 import lombok.Data;

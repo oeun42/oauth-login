@@ -1,8 +1,8 @@
-package com.example.ssologin.user.service;
+package com.example.oauth.user.service;
 
-import com.example.ssologin.user.dto.Request.GoogleAccessTokenRequest;
-import com.example.ssologin.user.dto.Response.AuthResponse;
-import com.example.ssologin.user.dto.Response.UserInfoResponse;
+import com.example.oauth.user.dto.Request.GoogleAccessTokenRequest;
+import com.example.oauth.user.dto.Response.AuthResponse;
+import com.example.oauth.user.dto.Response.UserInfoResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;

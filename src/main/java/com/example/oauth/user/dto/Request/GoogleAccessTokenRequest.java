@@ -1,4 +1,4 @@
-package com.example.ssologin.user.dto.Request;
+package com.example.oauth.user.dto.Request;
 
 
 import lombok.AllArgsConstructor;

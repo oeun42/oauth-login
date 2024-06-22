@@ -1,7 +1,7 @@
-package com.example.ssologin.user.controller;
+package com.example.oauth.user.controller;
 
-import com.example.ssologin.user.dto.Response.UserInfoResponse;
-import com.example.ssologin.user.service.GoogleLoginService;
+import com.example.oauth.user.dto.Response.UserInfoResponse;
+import com.example.oauth.user.service.GoogleLoginService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
