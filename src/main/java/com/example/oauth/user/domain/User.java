@@ -7,6 +7,7 @@ import lombok.*;
 
 @Getter
 @Entity
+@Table(name = "TB_USER")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User {
 
@@ -33,5 +34,9 @@ public class User {
         this.email = email;
         this.picture = picture;
         this.role = role;
+    }
+
+    public void updateUserRole(Role newRole){
+        this.role = newRole;
     }
 }

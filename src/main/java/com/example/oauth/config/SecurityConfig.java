@@ -1,5 +1,6 @@
 package com.example.oauth.config;
 
+import com.example.oauth.auth.handler.CustomOAuth2SuccessHandler;
 import com.example.oauth.auth.service.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -18,6 +19,8 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     private final CustomOAuth2UserService customOAuth2UserService;
+    private final CustomOAuth2SuccessHandler customOAuth2SuccessHandler;
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
@@ -31,8 +34,8 @@ public class SecurityConfig {
                         logoutConfig.logoutSuccessUrl("/"))
                 .oauth2Login((oauth2) -> oauth2
                         .loginPage("/oauth2/authorization/google")
-                        .defaultSuccessUrl("http://localhost:8080")
-                        .failureUrl("/")
+                        .successHandler(customOAuth2SuccessHandler)
+                        .failureUrl("/failure")
                         .userInfoEndpoint(userInfoEndpoint -> userInfoEndpoint
                                 .userService(customOAuth2UserService)))
                 .build();
