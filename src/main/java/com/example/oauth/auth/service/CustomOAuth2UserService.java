@@ -1,6 +1,8 @@
 package com.example.oauth.auth.service;
 
+import com.example.oauth.auth.domain.CustomOAuth2User;
 import com.example.oauth.auth.domain.OAuthAttributes;
+import com.example.oauth.user.domain.Role;
 import com.example.oauth.user.domain.User;
 import com.example.oauth.user.repository.UserRepository;
 import jakarta.servlet.http.HttpSession;
@@ -39,15 +41,16 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
 
         User user = userRepository.findByEmail(attributes.getEmail())
-                .orElse(null);
+                .orElse(User.builder()
+                        .role(Role.GUEST)
+                        .email(attributes.getEmail())
+                        .name(attributes.getName())
+                        .picture(attributes.getPicture())
+                        .build());
 
-        if(user == null){
-            throw new OAuth2AuthenticationException("회원가입 필요");
-        }
-
-        return new DefaultOAuth2User(
+        return new CustomOAuth2User(
                 Collections.singleton(new SimpleGrantedAuthority(user.getRole().getKey())),
                 attributes.getAttributes(),
-                attributes.getNameAttributeKey());
+                attributes.getNameAttributeKey(), user);
     }
 }
