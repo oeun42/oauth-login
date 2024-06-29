@@ -1,6 +1,5 @@
 package com.example.oauth.jwt;
 
-import com.example.oauth.jwt.domain.JwtConstants;
 import com.example.oauth.jwt.domain.RefreshToken;
 import com.example.oauth.jwt.repository.RefreshTokenRepository;
 import com.example.oauth.jwt.service.JwtService;
@@ -17,11 +16,9 @@ import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMap
 import org.springframework.security.core.authority.mapping.NullAuthoritiesMapper;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.security.Principal;
 
 @RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
@@ -43,28 +40,39 @@ public class JwtFilter extends OncePerRequestFilter {
         String refreshToken = jwtService.extractRefreshToken(request).orElse(null);
 
         if(refreshToken != null){
-            refreshTokenRepository.findByRefreshToken(refreshToken)
-                    .ifPresent(token -> { //리팩토링 필요
-                                userRepository.findByEmail(token.getEmail()).ifPresent( user ->{
-                                    String reissueRefreshToken = reIssueRefreshToken(token);
-                                    String reissueAccessToken = jwtService.generateAccessToken(user);
-                                    jwtService.setRefreshAccessTokenToHeader(response,reissueRefreshToken,reissueAccessToken);
-                                });
-                            });
-            return;
+            if(!checkAndRefreshToken(request, response, refreshToken)){
+                return;
+            }
         }
+        else{
+            String accessToken = jwtService.extractAccessToken(request).orElse(null);
 
-        String accessToken = jwtService.extractAccessToken(request).orElse(null);
-        if(accessToken == null || !jwtService.isTokenValid(accessToken)){
-            return;
+            if(accessToken == null || !jwtService.isTokenValid(accessToken)){
+                return;
+            }
+
+            String userEmail = jwtService.getUserEmail(accessToken);
+            userRepository.findByEmail(userEmail)
+                    .ifPresent(user ->
+                            saveAuthentication(request, response, user));
         }
-
-        String userEmail = jwtService.getUserEmail(accessToken);
-        userRepository.findByEmail(userEmail)
-                .ifPresent(user ->
-                        saveAuthentication(user, accessToken));
 
         filterChain.doFilter(request, response);
+    }
+
+    public boolean checkAndRefreshToken(HttpServletRequest request, HttpServletResponse response, String token){
+        RefreshToken refreshToken = refreshTokenRepository.findByRefreshToken(token).orElse(null);
+        boolean isValidToken = false;
+
+        if(refreshToken != null){
+            String reissueRefreshToken = reIssueRefreshToken(refreshToken);
+            String reissueAccessToken = jwtService.generateAccessToken(refreshToken.getUser());
+            jwtService.setRefreshAccessTokenToHeader(response,reissueRefreshToken,reissueAccessToken);
+            saveAuthentication(request, response, refreshToken.getUser());
+            isValidToken = true;
+        }
+
+        return isValidToken;
     }
 
     private String reIssueRefreshToken(RefreshToken refreshToken) {
@@ -76,7 +84,7 @@ public class JwtFilter extends OncePerRequestFilter {
         return reIssuedRefreshToken;
     }
 
-    private void saveAuthentication(User user, String accessToken){
+    private void saveAuthentication(HttpServletRequest request, HttpServletResponse response, User user) {
         UserDetails userDetails = org.springframework.security.core.userdetails.User.builder()
                 .username(user.getEmail())
                 .password("")
