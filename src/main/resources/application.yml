@@ -19,3 +19,4 @@ spring:
 
 uri:
   main-home: '/main'
+  login-success: '/login-success'

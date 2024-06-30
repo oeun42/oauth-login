@@ -53,14 +53,14 @@ public class JwtFilter extends OncePerRequestFilter {
 
         if(refreshToken != null){
             if(!checkAndRefreshToken(request, response, refreshToken)){
-                throw new IOException(String.valueOf(HttpResponseStatus.UNAUTHORIZED));
+               return;
             }
         }
         else{
             String accessToken = jwtService.extractAccessToken(request).orElse(null);
 
             if(accessToken == null || !jwtService.isTokenValid(accessToken)){
-                throw new IOException(String.valueOf(HttpResponseStatus.UNAUTHORIZED));
+                return;
             }
 
             String userEmail = jwtService.getUserEmailFromToken(accessToken);
