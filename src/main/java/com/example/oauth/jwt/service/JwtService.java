@@ -4,6 +4,8 @@ package com.example.oauth.jwt.service;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.example.oauth.jwt.domain.JwtConstants;
+import com.example.oauth.jwt.domain.RefreshToken;
+import com.example.oauth.jwt.repository.RefreshTokenRepository;
 import com.example.oauth.user.domain.User;
 import com.example.oauth.utils.TimeUtils;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,6 +32,8 @@ public class JwtService {
     @Value("${jwt.refresh.expiration}")
     private Long refreshTokenExpirePeriod;
 
+    private final RefreshTokenRepository refreshTokenRepository;
+
 
     public String generateAccessToken(User user){
         ZonedDateTime zonedDateTime = TimeUtils.getCurrentTime();
@@ -50,7 +54,7 @@ public class JwtService {
                 .sign(Algorithm.HMAC512(secretKey));
     }
 
-    public String getUserEmail(String token){
+    public String getUserEmailFromToken(String token){
         return JWT.require(Algorithm.HMAC512(secretKey)).build()
                 .verify(token)
                 .getClaim("email").toString();
@@ -83,5 +87,14 @@ public class JwtService {
         response.setStatus(HttpServletResponse.SC_OK);
         response.setHeader(JwtConstants.REFRESH, JwtConstants.TOKEN_TYPE + refreshToken);
         response.setHeader(JwtConstants.ACCESS, accessToken);
+    }
+
+    public Optional<RefreshToken> getRefreshToken(String token){
+        return refreshTokenRepository.findByRefreshToken(token);
+    }
+
+
+    public void saveResfreshToken(RefreshToken refreshToken){
+        refreshTokenRepository.saveAndFlush(refreshToken);
     }
 }

@@ -5,6 +5,7 @@ import com.example.oauth.jwt.repository.RefreshTokenRepository;
 import com.example.oauth.jwt.service.JwtService;
 import com.example.oauth.user.domain.User;
 import com.example.oauth.user.repository.UserRepository;
+import com.example.oauth.user.service.UserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,9 +26,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
 
-    private final UserRepository userRepository;
-
-    private final RefreshTokenRepository refreshTokenRepository;
+    private final UserService userService;
     private GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
 
     /*
@@ -51,17 +50,18 @@ public class JwtFilter extends OncePerRequestFilter {
                 return;
             }
 
-            String userEmail = jwtService.getUserEmail(accessToken);
-            userRepository.findByEmail(userEmail)
+            String userEmail = jwtService.getUserEmailFromToken(accessToken);
+            userService.findByEmail(userEmail)
                     .ifPresent(user ->
-                            saveAuthentication(request, response, user));
+                    saveAuthentication(request, response, user));
+
         }
 
         filterChain.doFilter(request, response);
     }
 
     public boolean checkAndRefreshToken(HttpServletRequest request, HttpServletResponse response, String token){
-        RefreshToken refreshToken = refreshTokenRepository.findByRefreshToken(token).orElse(null);
+        RefreshToken refreshToken = jwtService.getRefreshToken(token).orElse(null);
         boolean isValidToken = false;
 
         if(refreshToken != null){
@@ -79,7 +79,7 @@ public class JwtFilter extends OncePerRequestFilter {
         String reIssuedRefreshToken = jwtService.generateRefreshToken();
 
         refreshToken.updateRefreshToken(reIssuedRefreshToken);
-        refreshTokenRepository.saveAndFlush(refreshToken);
+        jwtService.saveResfreshToken(refreshToken);
 
         return reIssuedRefreshToken;
     }
