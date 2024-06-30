@@ -1,13 +1,12 @@
 spring:
   datasource:
     driver-class-name: org.h2.Driver
-    url: 'jdbc:h2:~/test'
-    username: username
-    password: password
+    url: 'jdbc:h2:tcp://localhost/~/oauth'
+    username: sa
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
-      ddl-auto: create
+      ddl-auto: none
     properties:
       hibernate:
         dialect: org.hibernate.dialect.H2Dialect

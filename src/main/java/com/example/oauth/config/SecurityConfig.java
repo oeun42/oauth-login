@@ -32,14 +32,15 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        return http
+
+        /*securtiy config*/
+        http
                 .csrf(AbstractHttpConfigurer::disable)
                 .headers((headerConfig) -> headerConfig
                         .frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
                 .authorizeRequests((authorizeRequests) -> authorizeRequests
                                 .requestMatchers("/","/oauth2/authorization/google").permitAll()
                                 .anyRequest().authenticated())
-                .addFilterBefore(new JwtFilter(jwtService, userService), UsernamePasswordAuthenticationFilter.class)
                 .logout((logoutConfig) ->
                         logoutConfig.logoutSuccessUrl("/"))
                 .oauth2Login((oauth2) -> oauth2
@@ -47,7 +48,12 @@ public class SecurityConfig {
                         .successHandler(customOAuth2SuccessHandler)
                         .failureUrl("/failure")
                         .userInfoEndpoint(userInfoEndpoint -> userInfoEndpoint
-                                .userService(customOAuth2UserService)))
-                .build();
+                                .userService(customOAuth2UserService)));
+
+        /*jwt config*/
+         http
+                 .addFilterBefore(new JwtFilter(jwtService, userService), UsernamePasswordAuthenticationFilter.class);
+
+        return http.build();
     }
 }
