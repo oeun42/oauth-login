@@ -1,10 +1,10 @@
-package com.example.ssologin;
+package com.example.oauth;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class SsologinApplicationTests {
+class OauthApplicationTests {
 
     @Test
     void contextLoads() {
