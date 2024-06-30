@@ -24,8 +24,8 @@ import java.nio.charset.StandardCharsets;
 @Component
 public class CustomOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
-    @Value("${uri.main-home}")
-    private String mainHomeUri;
+    @Value("${uri.login-success}")
+    private String loginSuccessUri;
 
     private final UserRepository userRepository;
 
@@ -44,7 +44,7 @@ public class CustomOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
         createAccessRefreshToken(user, response);
 
         String redirectURL = UriComponentsBuilder
-                .fromUriString(mainHomeUri)
+                .fromUriString(loginSuccessUri)
                 .toUriString();
 
         getRedirectStrategy().sendRedirect(request, response, redirectURL);

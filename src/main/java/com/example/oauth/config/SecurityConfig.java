@@ -32,8 +32,6 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
-        /*securtiy config*/
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .headers((headerConfig) -> headerConfig
@@ -50,9 +48,6 @@ public class SecurityConfig {
                         .userInfoEndpoint(userInfoEndpoint -> userInfoEndpoint
                                 .userService(customOAuth2UserService)));
 
-        /*jwt config*/
-         http
-                 .addFilterBefore(new JwtFilter(jwtService, userService), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
